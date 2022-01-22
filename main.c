@@ -3,10 +3,14 @@
 
 FILE* log;
 char status[5];
+int Change_Num;
 
 int main() {
-	system("curl https://raw.githubusercontent.com/HXHGTS/WARP-WatchDog/main/autocheck.sh > autocheck.sh");
+	Change_Num=0;
+	system("curl https://raw.githubusercontent.com/HXHGTS/WARP-WatchDog/main/autocheck.sh > ./autocheck.sh");
+	system("clear");
 	UnlockTest:if (TestOutBound() == 1) {
+		Change_Num=Change_Num+1;
 		ChangeIP();
 		goto UnlockTest;
 	}
@@ -17,19 +21,23 @@ int main() {
 }
 
 int ChangeIP() {
+	printf("Changing Outbound ip (%d tries). . .\n",Change_Num);
 	system("systemctl restart wg-quick@wgcf");
 	return 0;
 }
 
 int TestOutBound() {
-	system("echo 1 | bash autocheck.sh -M 4");
-	log = fopen("unlock.log", "r");
+	printf("Testing Outbound ip . . .\n");
+	system("echo 1 | bash autocheck.sh -M 4 > /dev/null");
+	log = fopen("./unlock.log", "r");
 	fread(status,1,1,log);
 	fclose(log);
 	if (status[0] == '1') {
+		printf("Tested Successful!(%d tries)\n\n",Change_Num);
 		return 0;
 	}
 	else {
+		printf("Tested Failed!\n\n");
 		return 1;
 	}
 }
